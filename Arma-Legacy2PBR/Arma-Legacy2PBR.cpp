@@ -70,7 +70,7 @@ int main() {
         cv::split(asPrepared, asChannels);
         cv::split(coPrepared, coChannels);
 
-        std::vector<cv::Mat> nmoChannels = { smdiChannels[1], nohqChannels[1], nohqChannels[2], asChannels[0] };
+        std::vector<cv::Mat> nmoChannels = { smdiChannels[1], nohqChannels[1], nohqChannels[2], asChannels[1] };
         cv::Mat nmo(targetSize, CV_8UC4);
         cv::merge(nmoChannels, nmo);
 
