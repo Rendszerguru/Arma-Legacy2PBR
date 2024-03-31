@@ -1,7 +1,8 @@
-Create BCR and NMO .png textures from Arma 3 CO, NOHQ, SMDI and AS .png textures.
+Create BCR and NMO .png textures from Arma 3 CO, NOHQ, SMDI and AS .paa or .png textures.
 
-We simply copy the Arma 3 textures (CO, NOHQ, SMDI, AS) into the Arma-Legacy2PBR directory if we want to convert them.
+If the source is in .paa format, then you should copy the CO, NOHQ, SMDI, AS files into the PAA_Source folder, and if it's already in .png format, you should copy it to the PNG_Result folder.
 
+The conversion with the PAA2PBR.bat file.
 
 
 
