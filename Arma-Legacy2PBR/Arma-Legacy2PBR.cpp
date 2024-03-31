@@ -27,16 +27,50 @@ std::string getBaseName(const std::string& filename) {
     return filename;
 }
 
-
 std::vector<std::string> findFilesWithSuffix(const std::string& suffix) {
     std::vector<std::string> files;
-    fs::path currentPath = fs::current_path();
-    for (const auto& entry : fs::directory_iterator(currentPath)) {
-        if (entry.path().extension() == ".png" && entry.path().filename().string().find(suffix) != std::string::npos) {
-            files.push_back(entry.path().string());
+    try {
+        fs::path targetPath = fs::current_path() / "PNG_Result";
+        for (const auto& entry : fs::directory_iterator(targetPath)) {
+            if (entry.path().extension() == ".png" && entry.path().filename().string().find(suffix) != std::string::npos) {
+                files.push_back(entry.path().string());
+            }
         }
     }
+    catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << '\n';
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Standard exception: " << e.what() << '\n';
+    }
+    catch (...) {
+        std::cerr << "An unknown error occurred." << '\n';
+    }
     return files;
+}
+
+void moveFilesToPBRFolder(const std::vector<std::string>& filenames) {
+    try {
+        fs::path pbrFolderPath = fs::current_path() / "PBR_Result";
+        if (!fs::exists(pbrFolderPath)) {
+            fs::create_directory(pbrFolderPath);
+        }
+
+        for (const auto& filename : filenames) {
+            fs::path filePath = filename;
+            fs::path newFilePath = pbrFolderPath / filePath.filename();
+            fs::rename(filePath, newFilePath);
+        }
+    }
+    catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << '\n';
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Standard exception: " << e.what() << '\n';
+    }
+    catch (...) {
+        std::cerr << "An unknown error occurred." << '\n';
+    }
 }
 
 int main() {
@@ -85,6 +119,14 @@ int main() {
 
         std::cout << "NMO and BCR textures created successfully: " << nmoName << " and " << bcrName << std::endl;
     }
+
+    std::vector<std::string> nmoFiles = findFilesWithSuffix("_NMO.png");
+    std::vector<std::string> bcrFiles = findFilesWithSuffix("_BCR.png");
+
+    moveFilesToPBRFolder(nmoFiles);
+    moveFilesToPBRFolder(bcrFiles);
+
+    std::cout << "NMO and BCR textures moved to PBR_Target folder successfully." << std::endl;
 
     return 0;
 }
