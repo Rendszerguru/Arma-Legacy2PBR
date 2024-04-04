@@ -41,7 +41,31 @@ bool saveImage(const std::string& filename, FIBITMAP* dib) {
         return false;
     }
 
-    if (FreeImage_Save(format, dib, filename.c_str(), TARGA_DEFAULT) == FALSE) {
+    int flags = 0;
+    if (format == FIF_TIFF) {
+        // TIFF compression settings
+        // flags = TIFF_DEFLATE; // Use Deflate compression
+        flags = TIFF_NONE; // No compression
+        // flags = TIFF_LZW; // LZW compression (default)
+        // flags = TIFF_CCITTFAX3; // CCITT Group 3 compression (for black and white images)
+        // flags = TIFF_CCITTFAX4; // CCITT Group 4 compression (for black and white images)
+        // flags = TIFF_JPEG; // JPEG compression (lossy)
+    }
+    else if (format == FIF_PNG) {
+        // PNG compression settings
+        // flags = PNG_Z_BEST_COMPRESSION; // Best compression ratio
+        // flags = PNG_Z_DEFAULT_COMPRESSION; // Default compression
+        flags = PNG_Z_NO_COMPRESSION; // No compression
+    }
+    else if (format == FIF_TARGA) {
+        // TGA compression settings
+        // flags = TARGA_LOAD_RGB888; // 24-bit RGB format
+        // flags = TARGA_LOAD_ARGB8888; // 32-bit ARGB format
+        flags = TARGA_DEFAULT; // Default settings
+        // flags = TARGA_SAVE_RLE; // Apply RLE compression
+    }
+
+    if (FreeImage_Save(format, dib, filename.c_str(), flags) == FALSE) {
         std::cerr << "Failed to save image: " << filename << std::endl;
         return false;
     }
