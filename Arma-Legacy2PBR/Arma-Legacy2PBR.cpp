@@ -3,18 +3,20 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
+#include <string>
 
 namespace fs = std::filesystem;
 
 FREE_IMAGE_FORMAT getFreeImageFormat(const std::string& filename) {
     std::string extension = fs::path(filename).extension().string();
-    if (extension == ".tga" || extension == ".TGA") {
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+    if (extension == ".tga") {
         return FIF_TARGA;
     }
-    else if (extension == ".tif" || extension == ".TIF") {
+    else if (extension == ".tif") {
         return FIF_TIFF;
     }
-    else if (extension == ".png" || extension == ".PNG") {
+    else if (extension == ".png") {
         return FIF_PNG;
     }
     return FIF_UNKNOWN;
@@ -105,9 +107,11 @@ std::vector<std::string> findFilesWithSuffix(const std::string& suffix) {
     return files;
 }
 
-void moveFilesToPBRFolder(const std::vector<std::string>& filenames) {
+void moveFilesToPBRFolder(const std::vector<std::string>&filenames) {
+
     try {
         fs::path pbrFolderPath = fs::current_path() / "PBR_Result";
+
         if (!fs::exists(pbrFolderPath)) {
             fs::create_directory(pbrFolderPath);
         }
@@ -129,13 +133,72 @@ void moveFilesToPBRFolder(const std::vector<std::string>& filenames) {
     }
 }
 
+bool endsWith(const std::string& str, const std::string& suffix) {
+    if (str.size() < suffix.size()) return false;
+    return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
+}
+
 int main() {
     FreeImage_Initialise();
 
-    std::vector<std::string> nohqFiles = findFilesWithSuffix("_nohq.tga");
-    std::vector<std::string> smdiFiles = findFilesWithSuffix("_smdi.tga");
-    std::vector<std::string> asFiles = findFilesWithSuffix("_as.tga");
-    std::vector<std::string> coFiles = findFilesWithSuffix("_co.tga");
+    std::vector<std::string> nohqFiles = findFilesWithSuffix("_nohq");
+    std::vector<std::string> smdiFiles = findFilesWithSuffix("_smdi");
+    std::vector<std::string> asFiles = findFilesWithSuffix("_as");
+    std::vector<std::string> coFiles = findFilesWithSuffix("_co");
+
+    // We separate each type into TGA, PNG, and TIFF files.
+    std::vector<std::string> nohqFilesTGA, nohqFilesPNG, nohqFilesTIFF;
+    std::vector<std::string> smdiFilesTGA, smdiFilesPNG, smdiFilesTIFF;
+    std::vector<std::string> asFilesTGA, asFilesPNG, asFilesTIFF;
+    std::vector<std::string> coFilesTGA, coFilesPNG, coFilesTIFF;
+
+    for (const auto& file : nohqFiles) {
+        if (endsWith(file, ".tga")) {
+            nohqFilesTGA.push_back(file);
+        }
+        else if (endsWith(file, ".png")) {
+            nohqFilesPNG.push_back(file);
+        }
+        else if (endsWith(file, ".tif")) {
+            nohqFilesTIFF.push_back(file);
+        }
+    }
+
+    for (const auto& file : smdiFiles) {
+        if (endsWith(file, ".tga")) {
+            smdiFilesTGA.push_back(file);
+        }
+        else if (endsWith(file, ".png")) {
+            smdiFilesPNG.push_back(file);
+        }
+        else if (endsWith(file, ".tif")) {
+            smdiFilesTIFF.push_back(file);
+        }
+    }
+
+    for (const auto& file : asFiles) {
+        if (endsWith(file, ".tga")) {
+            asFilesTGA.push_back(file);
+        }
+        else if (endsWith(file, ".png")) {
+            asFilesPNG.push_back(file);
+        }
+        else if (endsWith(file, ".tif")) {
+            asFilesTIFF.push_back(file);
+        }
+    }
+
+    for (const auto& file : coFiles) {
+        if (endsWith(file, ".tga")) {
+            coFilesTGA.push_back(file);
+        }
+        else if (endsWith(file, ".png")) {
+            coFilesPNG.push_back(file);
+        }
+        else if (endsWith(file, ".tif")) {
+            coFilesTIFF.push_back(file);
+        }
+    }
 
     if (nohqFiles.empty() || smdiFiles.empty() || asFiles.empty() || coFiles.empty()) {
         std::cout << "Failed to load one or more images." << std::endl;
@@ -218,21 +281,21 @@ int main() {
         }
 
         std::string baseName = getBaseName(nohqFiles[i]);
-        std::string nmoName = baseName + "_NMO.tga";
-        std::string bcrName = baseName + "_BCR.tga";
+        std::string nmoNameTGA = baseName + "_NMO.tga";
+        std::string bcrNameTGA = baseName + "_BCR.tga";
         std::string nmoNameTIFF = baseName + "_NMO.tif";
         std::string bcrNameTIFF = baseName + "_BCR.tif";
         std::string nmoNamePNG = baseName + "_NMO.png";
         std::string bcrNamePNG = baseName + "_BCR.png";
 
-        saveImage(nmoName, nmo);
-        saveImage(bcrName, bcr);
+        saveImage(nmoNameTGA, nmo);
+        saveImage(bcrNameTGA, bcr);
         saveImage(nmoNameTIFF, nmo);
         saveImage(bcrNameTIFF, bcr);
         saveImage(nmoNamePNG, nmo);
         saveImage(bcrNamePNG, bcr);
 
-        std::cout << "NMO and BCR textures created successfully: " << nmoName << ", " << bcrName << ", " << nmoNameTIFF << ", " << bcrNameTIFF << ", " << nmoNamePNG << ", " << bcrNamePNG << std::endl;
+        std::cout << "NMO and BCR textures created successfully: " << nmoNameTGA << ", " << bcrNameTGA << ", " << nmoNameTIFF << ", " << bcrNameTIFF << ", " << nmoNamePNG << ", " << bcrNamePNG << std::endl;
 
         // Release
         FreeImage_Unload(nohq);
@@ -247,15 +310,15 @@ int main() {
         FreeImage_Unload(bcr);
     }
 
-    std::vector<std::string> nmoFiles = findFilesWithSuffix("_NMO");
-    std::vector<std::string> bcrFiles = findFilesWithSuffix("_BCR");
+    std::vector<std::string> nmoFilesTGA = findFilesWithSuffix("_NMO.tga");
+    std::vector<std::string> bcrFilesTGA = findFilesWithSuffix("_BCR.tga");
     std::vector<std::string> nmoFilesTIFF = findFilesWithSuffix("_NMO.tif");
     std::vector<std::string> bcrFilesTIFF = findFilesWithSuffix("_BCR.tif");
     std::vector<std::string> nmoFilesPNG = findFilesWithSuffix("_NMO.png");
     std::vector<std::string> bcrFilesPNG = findFilesWithSuffix("_BCR.png");
 
-    moveFilesToPBRFolder(nmoFiles);
-    moveFilesToPBRFolder(bcrFiles);
+    moveFilesToPBRFolder(nmoFilesTGA);
+    moveFilesToPBRFolder(bcrFilesTGA);
     moveFilesToPBRFolder(nmoFilesTIFF);
     moveFilesToPBRFolder(bcrFilesTIFF);
     moveFilesToPBRFolder(nmoFilesPNG);
