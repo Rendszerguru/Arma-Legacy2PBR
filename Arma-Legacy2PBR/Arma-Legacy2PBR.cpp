@@ -44,7 +44,14 @@ bool saveImage(const std::string& filename, FIBITMAP* dib) {
     }
 
     int flags = 0;
-    if (format == FIF_TIFF) {
+    if (format == FIF_TARGA) {
+        // TGA compression settings
+        // flags = TARGA_LOAD_RGB888; // 24-bit RGB format
+        // flags = TARGA_LOAD_ARGB8888; // 32-bit ARGB format
+        flags = TARGA_DEFAULT; // Default settings
+        // flags = TARGA_SAVE_RLE; // Apply RLE compression
+    }
+    else if (format == FIF_TIFF) {
         // TIFF compression settings
         // flags = TIFF_DEFLATE; // Use Deflate compression
         flags = TIFF_NONE; // No compression
@@ -59,14 +66,6 @@ bool saveImage(const std::string& filename, FIBITMAP* dib) {
         // flags = PNG_Z_DEFAULT_COMPRESSION; // Default compression
         flags = PNG_Z_NO_COMPRESSION; // No compression
     }
-    else if (format == FIF_TARGA) {
-        // TGA compression settings
-        // flags = TARGA_LOAD_RGB888; // 24-bit RGB format
-        // flags = TARGA_LOAD_ARGB8888; // 32-bit ARGB format
-        flags = TARGA_DEFAULT; // Default settings
-        // flags = TARGA_SAVE_RLE; // Apply RLE compression
-    }
-
     if (FreeImage_Save(format, dib, filename.c_str(), flags) == FALSE) {
         std::cerr << "Failed to save image: " << filename << std::endl;
         return false;
@@ -88,7 +87,7 @@ std::vector<std::string> findFilesWithSuffix(const std::string& suffix) {
     try {
         fs::path targetPath = fs::current_path() / "TGA_Result";
         for (const auto& entry : fs::directory_iterator(targetPath)) {
-            if (entry.path().extension() == ".tga" || entry.path().extension() == ".png" || entry.path().extension() == ".tif") {
+            if (entry.path().extension() == ".tga" || entry.path().extension() == ".tif" || entry.path().extension() == ".png") {
                 if (entry.path().filename().string().find(suffix) != std::string::npos) {
                     files.push_back(entry.path().string());
                 }
@@ -146,20 +145,20 @@ int main() {
     std::vector<std::string> asFiles = findFilesWithSuffix("_as");
     std::vector<std::string> coFiles = findFilesWithSuffix("_co");
 
-    // We separate each type into TGA, PNG, and TIFF files.
-    std::vector<std::string> nohqFilesTGA, nohqFilesPNG, nohqFilesTIFF;
-    std::vector<std::string> smdiFilesTGA, smdiFilesPNG, smdiFilesTIFF;
-    std::vector<std::string> asFilesTGA, asFilesPNG, asFilesTIFF;
-    std::vector<std::string> coFilesTGA, coFilesPNG, coFilesTIFF;
+    // We separate each type into TGA, TIFF, and PNG files.
+    std::vector<std::string> nohqFilesTGA, nohqFilesTIFF, nohqFilesPNG;
+    std::vector<std::string> smdiFilesTGA, smdiFilesTIFF, smdiFilesPNG;
+    std::vector<std::string> asFilesTGA, asFilesTIFF, asFilesPNG;
+    std::vector<std::string> coFilesTGA, coFilesTIFF, coFilesPNG;
 
     for (const auto& file : nohqFiles) {
         if (endsWith(file, ".tga")) {
             nohqFilesTGA.push_back(file);
         }
-        else if (endsWith(file, ".png")) {
+        else if (endsWith(file, ".tif")) {
             nohqFilesPNG.push_back(file);
         }
-        else if (endsWith(file, ".tif")) {
+        else if (endsWith(file, ".png")) {
             nohqFilesTIFF.push_back(file);
         }
     }
@@ -168,10 +167,10 @@ int main() {
         if (endsWith(file, ".tga")) {
             smdiFilesTGA.push_back(file);
         }
-        else if (endsWith(file, ".png")) {
+        else if (endsWith(file, ".tif")) {
             smdiFilesPNG.push_back(file);
         }
-        else if (endsWith(file, ".tif")) {
+        else if (endsWith(file, ".png")) {
             smdiFilesTIFF.push_back(file);
         }
     }
@@ -180,10 +179,10 @@ int main() {
         if (endsWith(file, ".tga")) {
             asFilesTGA.push_back(file);
         }
-        else if (endsWith(file, ".png")) {
+        else if (endsWith(file, ".tif")) {
             asFilesPNG.push_back(file);
         }
-        else if (endsWith(file, ".tif")) {
+        else if (endsWith(file, ".png")) {
             asFilesTIFF.push_back(file);
         }
     }
@@ -192,10 +191,10 @@ int main() {
         if (endsWith(file, ".tga")) {
             coFilesTGA.push_back(file);
         }
-        else if (endsWith(file, ".png")) {
+        else if (endsWith(file, ".tif")) {
             coFilesPNG.push_back(file);
         }
-        else if (endsWith(file, ".tif")) {
+        else if (endsWith(file, ".png")) {
             coFilesTIFF.push_back(file);
         }
     }
