@@ -1,3 +1,7 @@
+## **Version 1.0.3**
+
+Fixed: The input PNG and TIFF formats were not being processed.
+
 ## **Version 1.0.2**
 
 Completely reworked, optimized version with error handling.
