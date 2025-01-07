@@ -52,7 +52,9 @@ std::vector<std::string> findFilesWithSuffix(const std::string& suffix) {
     std::vector<std::string> result;
     try {
         for (const auto& entry : fs::directory_iterator(fs::current_path() / "TGA_Result")) {
-            if (entry.path().extension() == ".tga" && entry.path().stem().string().ends_with(suffix)) {
+            std::string extension = entry.path().extension().string();
+            if ((extension == ".tga" || extension == ".png" || extension == ".tif") &&
+                entry.path().stem().string().ends_with(suffix)) {
                 result.push_back(entry.path().string());
             }
         }
@@ -163,8 +165,8 @@ int main() {
                 nmoBuffer[index + 0] = smdiBits[index + 1];
                 nmoBuffer[index + 1] = nohqBits[index + 1];
                 nmoBuffer[index + 2] = nohqBits[index + 2];
-                nmoBuffer[index + 3] = (asBits[index + 1] + nohqBits[index + 2]) / 2;
-
+                nmoBuffer[index + 3] = asBits[index + 1];
+                
                 bcrBuffer[index + 0] = coBits[index + 0];
                 bcrBuffer[index + 1] = coBits[index + 1];
                 bcrBuffer[index + 2] = coBits[index + 2];
